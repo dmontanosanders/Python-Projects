@@ -1,55 +1,51 @@
+#! C:\Python27
 # -*- coding: latin_1 -*-
 import easygui as eg
 import os
 import re
-import codecs
-import sys
-from time import localtime, strftime
 
 
-def main():
-    pass
-
-if __name__ == '__main__':
-    main()
-
-my = strftime("%m_%Y", localtime())
-
-#try to open attach.txt, return to folder select if fail
-x=False
-while x==False:
-    #Get path to attach.txt
-    path = eg.diropenbox("","Choose EXPORT Folder","K:\\"+my)
-    try:
-        f = codecs.open(path+'\\attach.txt','r',"latin_1")
-        x=True
-    except TypeError:
-        sys.exit()
-    except :
-        if eg.ynbox("There is no 'attach.txt' file in the folder you selected\nWould you like to Continue?","Whoops, that didn't work!"): pass
-        else:
-            sys.exit()
-#resolve source from path
-mch = re.search('[0-9]{9}_[0-9]{4}.*(?=\.SCL)',path,re.IGNORECASE)
-src = mch.group()
-
-#format src to correct structure for concatenence
-psrc= u"þ"+src+u"þ\r\n"
-
-#open and write attach.txt into OCRTEXT.DAT
-n = codecs.open(path+'\\OCRTEXT.DAT','w',"latin_1")
-frstln=u"þBegBatesþþEndBatesþþPgCountþþOCRþþSource Mediaþ\r\n"
-n.write(frstln)
-for line in f:
-    n.write(line.replace("\r\n",psrc))
-n.close()
-f.close()
-
-#delete txt files in source directory
+path = eg.diropenbox("","Choose Folder with .CSV files","C:\\")
+n = open(path+"\\RFPs.txt",'w')
+#get all files in dir
 for root, dirs, files in os.walk(path):
     for filename in files:
-        if filename.endswith(".txt"):
-            os.remove(os.path.join(root,filename))
+#test if file is .csv and proceed if true
+        if filename.endswith(".csv"):
+            #get number of lines in .csv
+            nl = len(open(path+"\\"+filename).readlines())
+            #write filename in file and add newline
+            n.write(filename+":\n")
+            #open the file for reading line by line
+            f=open(path+"\\"+filename,'r')
+            #set line count to zero for every file
+            x=0
+            for line in f:
+                #strip newline and split each line at comma. test if begdoc
+                #matches enddoc for single page docs and eof
+                linen = line.rstrip('\n')
+                ls = linen.split(',')
+                if ls[0]==ls[1]:
+                    if x==nl-1:
+                        n.write(ls[0]+"\n\n")
+                    else:
+                        n.write(ls[0]+", ")
+                        x=x+1
+                #check if eof and write last line with newline
+                elif x==nl-1:
+                    line = line.rstrip('\n')
+                    n.write(line.replace(',','-')+"\n\n")
+                #write line if not single page and proceed to next line
+                else:
+                    line = line.replace(',','-')
+                    n.write(line.replace('\n',', '))
+                    x=x+1
+            f.close()
+
+n.close
+
+
+
 
 
 
