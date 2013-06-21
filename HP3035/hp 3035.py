@@ -10,7 +10,7 @@
 #-------------------------------------------------------------------------------
 
 import urllib2,re
-
+from bs4 import BeautifulSoup
 
 
 
@@ -18,8 +18,10 @@ url = 'http://192.168.1.74/hp/device/this.LCDispatcher?nav=hp.Usage' # write the
 
 usock = urllib2.urlopen(url)
 data = usock.read()
-msend = re.search(r'(?=Send Job Scan Count<\/span>\n).*',data)
 usock.close()
 
-print msend.group()
+soup = BeautifulSoup(data)
+srlnumht = soup.find(id="Text2")
+srlnum = srlnumht.get_text()
+print srlnum
 
