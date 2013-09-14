@@ -9,7 +9,7 @@
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
 
-import urllib2,re
+import urllib2,re,datetime
 from bs4 import BeautifulSoup
 from xlrd import open_workbook,XL_CELL_TEXT
 from xlwt import Workbook
@@ -28,6 +28,7 @@ def get_mreads(x):
     srlnum = srlnumht.get_text()
     return srlnum
 
+d = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
 rb = open_workbook('Book1.xlsx')
 sheet = rb.sheet_by_name('IP Address')
 
